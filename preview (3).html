@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#05070b" />
+  <title>ScreenCast | Windows to Phone</title>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(64,110,255,.20), transparent 34%),
+        radial-gradient(circle at 80% 80%, rgba(73,213,170,.12), transparent 34%),
+        #05070b;
+      color: #fff;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 22px;
+    }
+    .app {
+      width: min(1050px, 100%);
+      background: rgba(14, 18, 28, .76);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 28px;
+      box-shadow: 0 28px 90px rgba(0,0,0,.45);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      overflow: hidden;
+    }
+    header {
+      padding: 24px 26px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 19px;
+    }
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #5577ff, #55d6b0);
+      box-shadow: 0 10px 30px rgba(70,112,255,.30);
+      font-size: 21px;
+    }
+    .pill {
+      font-size: 12px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      color: #bac3d6;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    main { padding: 26px; }
+    .hero { text-align: center; padding: 10px 10px 22px; }
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 54px);
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+    .hero p {
+      max-width: 700px;
+      margin: 14px auto 0;
+      color: #aeb8cd;
+      line-height: 1.6;
+    }
+    .choice {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .card {
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 22px;
+      padding: 22px;
+    }
+    .card h2 { margin: 0 0 8px; font-size: 22px; }
+    .card p { margin: 0 0 18px; color: #9da8bd; line-height: 1.5; }
+    button, input {
+      font: inherit;
+    }
+    button {
+      border: 0;
+      cursor: pointer;
+      color: #fff;
+      font-weight: 750;
+      border-radius: 14px;
+      padding: 14px 18px;
+      transition: .18s ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    .primary {
+      width: 100%;
+      background: linear-gradient(135deg, #5678ff, #6a5cff);
+      box-shadow: 0 10px 30px rgba(75,99,255,.25);
+    }
+    .secondary {
+      width: 100%;
+      background: rgba(255,255,255,.09);
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    .danger {
+      background: #da4053;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    input {
+      width: 100%;
+      background: #0c1019;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.12);
+      padding: 14px 15px;
+      border-radius: 14px;
+      outline: none;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      text-align: center;
+      font-size: 19px;
+      font-weight: 800;
+    }
+    input:focus { border-color: #6c83ff; box-shadow: 0 0 0 3px rgba(108,131,255,.13); }
+    .screen-zone {
+      margin-top: 18px;
+      display: none;
+    }
+    .screen-wrap {
+      position: relative;
+      background: #000;
+      border-radius: 20px;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+      display: block;
+    }
+    .screen-controls {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .status {
+      margin-top: 14px;
+      min-height: 24px;
+      color: #aab4c7;
+      text-align: center;
+      font-size: 14px;
+    }
+    .code-box {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      text-align: center;
+      border: 1px dashed rgba(255,255,255,.16);
+      border-radius: 16px;
+      background: rgba(0,0,0,.16);
+    }
+    .code-label { color: #98a4ba; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+    .code {
+      font-size: clamp(34px, 8vw, 58px);
+      letter-spacing: 8px;
+      font-weight: 900;
+      margin: 4px 0;
+    }
+    .tiny {
+      color: #7f8aa0;
+      font-size: 12px;
+      line-height: 1.5;
+      margin-top: 14px;
+    }
+    .hidden { display: none !important; }
+    #viewerPanel { display: none; }
+    #senderPanel { display: none; }
+
+    @media (max-width: 760px) {
+      body { padding: 0; align-items: stretch; }
+      .app {
+        min-height: 100vh;
+        border-radius: 0;
+        border: 0;
+      }
+      header { padding-top: max(18px, env(safe-area-inset-top)); }
+      main { padding: 20px 16px max(20px, env(safe-area-inset-bottom)); }
+      .choice { grid-template-columns: 1fr; }
+      .hero h1 { letter-spacing: -1.2px; }
+      .screen-wrap {
+        border-radius: 14px;
+        aspect-ratio: 9 / 16;
+      }
+      video { object-fit: contain; }
+    }
+
+    :fullscreen .screen-wrap,
+    .screen-wrap:fullscreen {
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+      aspect-ratio: auto;
+      border: 0;
+    }
+    :fullscreen video,
+    .screen-wrap:fullscreen video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="logo">▣</div>
+      <div>ScreenCast</div>
+    </div>
+    <div class="pill" id="connectionPill">Ready</div>
+  </header>
+
+  <main>
+    <section class="hero" id="homePanel">
+      <h1>Share your Windows screen to your phone.</h1>
+      <p>
+        Open this same website on both devices. Start sharing on the Windows PC,
+        then enter the short connection code on your phone.
+      </p>
+    </section>
+
+    <section class="choice" id="choicePanel">
+      <div class="card">
+        <h2>🖥️ Windows PC</h2>
+        <p>Share a monitor, browser tab, or application window. Your PC will create a connection code.</p>
+        <button class="primary" id="startSenderBtn">Share this PC screen</button>
+      </div>
+
+      <div class="card">
+        <h2>📱 Phone / iPhone</h2>
+        <p>Enter the code shown on your Windows PC. The shared screen will appear below.</p>
+        <button class="secondary" id="openViewerBtn">Connect to a PC</button>
+      </div>
+    </section>
+
+    <section class="card" id="senderPanel">
+      <h2>Share this Windows screen</h2>
+      <p>Choose the screen/window you want to share. Keep this page open while streaming.</p>
+
+      <button class="primary" id="captureBtn">Choose screen to share</button>
+
+      <div class="code-box" id="codeBox">
+        <div class="code-label">Enter this code on your phone</div>
+        <div class="code" id="roomCode">------</div>
+        <div class="tiny">Your phone should open this exact same website in Safari and tap “Connect to a PC.”</div>
+      </div>
+
+      <div class="screen-zone" id="senderPreview">
+        <div class="screen-wrap">
+          <video id="localVideo" autoplay muted playsinline></video>
+        </div>
+        <div class="screen-controls">
+          <button class="secondary" id="senderHomeBtn">Back</button>
+          <button class="danger" id="stopBtn">Stop sharing</button>
+        </div>
+      </div>
+      <div class="status" id="senderStatus"></div>
+    </section>
+
+    <section class="card" id="viewerPanel">
+      <h2>Connect to your PC</h2>
+      <p>Type the 6-character code shown on the Windows computer.</p>
+
+      <div class="row">
+        <input id="codeInput" maxlength="6" placeholder="ABC123" autocomplete="off" autocapitalize="characters" />
+      </div>
+      <div style="height:10px"></div>
+      <button class="primary" id="connectBtn">Connect</button>
+
+      <div class="screen-zone" id="viewerScreen">
+        <div class="screen-wrap" id="viewerWrap">
+          <video id="remoteVideo" autoplay playsinline muted></video>
+        </div>
+        <div class="screen-controls">
+          <button class="secondary" id="fullscreenBtn">⛶ Full screen</button>
+          <button class="secondary" id="viewerHomeBtn">Back</button>
+        </div>
+      </div>
+      <div class="status" id="viewerStatus"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+(() => {
+  let peer = null;
+  let screenStream = null;
+  let currentCall = null;
+  let roomCode = null;
+
+  const $ = id => document.getElementById(id);
+
+  const homePanel = $("homePanel");
+  const choicePanel = $("choicePanel");
+  const senderPanel = $("senderPanel");
+  const viewerPanel = $("viewerPanel");
+  const senderPreview = $("senderPreview");
+  const viewerScreen = $("viewerScreen");
+  const codeBox = $("codeBox");
+  const senderStatus = $("senderStatus");
+  const viewerStatus = $("viewerStatus");
+  const pill = $("connectionPill");
+
+  function randomCode() {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let out = "";
+    for (let i = 0; i < 6; i++) out += chars[Math.floor(Math.random() * chars.length)];
+    return out;
+  }
+
+  function show(panel) {
+    [senderPanel, viewerPanel].forEach(p => p.style.display = "none");
+    homePanel.style.display = panel ? "none" : "block";
+    choicePanel.style.display = panel ? "none" : "grid";
+    if (panel) panel.style.display = "block";
+  }
+
+  function resetPeer() {
+    try { if (currentCall) currentCall.close(); } catch {}
+    try { if (peer) peer.destroy(); } catch {}
+    currentCall = null;
+    peer = null;
+  }
+
+  function stopShare() {
+    if (screenStream) {
+      screenStream.getTracks().forEach(t => t.stop());
+      screenStream = null;
+    }
+    $("localVideo").srcObject = null;
+    senderPreview.style.display = "none";
+    codeBox.style.display = "none";
+    senderStatus.textContent = "";
+    pill.textContent = "Ready";
+    resetPeer();
+  }
+
+  $("startSenderBtn").onclick = () => show(senderPanel);
+  $("openViewerBtn").onclick = () => show(viewerPanel);
+
+  $("senderHomeBtn").onclick = () => {
+    stopShare();
+    show(null);
+  };
+
+  $("viewerHomeBtn").onclick = () => {
+    resetPeer();
+    $("remoteVideo").srcObject = null;
+    viewerScreen.style.display = "none";
+    viewerStatus.textContent = "";
+    pill.textContent = "Ready";
+    show(null);
+  };
+
+  $("captureBtn").onclick = async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+      senderStatus.textContent = "Screen sharing is not supported in this browser. Use Chrome or Edge on Windows over HTTPS.";
+      return;
+    }
+
+    try {
+      senderStatus.textContent = "Choose a screen, window, or browser tab...";
+      screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { frameRate: { ideal: 30, max: 60 } },
+        audio: false
+      });
+
+      $("localVideo").srcObject = screenStream;
+      senderPreview.style.display = "block";
+
+      roomCode = randomCode();
+      $("roomCode").textContent = roomCode;
+      codeBox.style.display = "block";
+
+      resetPeer();
+      peer = new Peer("sc-" + roomCode.toLowerCase());
+
+      peer.on("open", () => {
+        senderStatus.textContent = "Waiting for your phone to enter the code…";
+        pill.textContent = "Waiting";
+      });
+
+      peer.on("call", call => {
+        currentCall = call;
+        senderStatus.textContent = "Phone connected. Starting screen stream…";
+        pill.textContent = "Connected";
+        call.answer(screenStream);
+
+        call.on("close", () => {
+          senderStatus.textContent = "Phone disconnected. You can reconnect using the same code while this share stays open.";
+          pill.textContent = "Waiting";
+        });
+
+        call.on("error", () => {
+          senderStatus.textContent = "The phone connection ended.";
+          pill.textContent = "Waiting";
+        });
+      });
+
+      peer.on("error", err => {
+        console.error(err);
+        if (err.type === "unavailable-id") {
+          senderStatus.textContent = "That code was already in use. Stop and start again to generate another.";
+        } else {
+          senderStatus.textContent = "Connection service error. Refresh the page and try again.";
+        }
+      });
+
+      screenStream.getVideoTracks()[0].addEventListener("ended", stopShare);
+
+    } catch (err) {
+      console.error(err);
+      senderStatus.textContent = err.name === "NotAllowedError"
+        ? "Screen sharing was cancelled or blocked."
+        : "Could not start screen sharing.";
+    }
+  };
+
+  $("stopBtn").onclick = stopShare;
+
+  $("codeInput").addEventListener("input", e => {
+    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
+  });
+
+  $("connectBtn").onclick = () => {
+    const code = $("codeInput").value.trim().toUpperCase();
+    if (code.length !== 6) {
+      viewerStatus.textContent = "Enter the full 6-character code.";
+      return;
+    }
+
+    resetPeer();
+    viewerStatus.textContent = "Connecting to your Windows PC…";
+    pill.textContent = "Connecting";
+
+    peer = new Peer();
+
+    peer.on("open", () => {
+      // Safari/iPhone is the receiving device. We place a harmless blank MediaStream
+      // in the call so PeerJS creates a two-way WebRTC connection.
+      const blankStream = new MediaStream();
+      currentCall = peer.call("sc-" + code.toLowerCase(), blankStream);
+
+      if (!currentCall) {
+        viewerStatus.textContent = "Could not create connection.";
+        return;
+      }
+
+      currentCall.on("stream", remoteStream => {
+        const v = $("remoteVideo");
+        v.srcObject = remoteStream;
+        v.muted = true;
+        v.play().catch(() => {});
+        viewerScreen.style.display = "block";
+        viewerStatus.textContent = "Connected to Windows PC.";
+        pill.textContent = "Connected";
+      });
+
+      currentCall.on("close", () => {
+        viewerStatus.textContent = "The PC stopped sharing or disconnected.";
+        pill.textContent = "Disconnected";
+      });
+
+      currentCall.on("error", () => {
+        viewerStatus.textContent = "The connection ended.";
+        pill.textContent = "Disconnected";
+      });
+    });
+
+    peer.on("error", err => {
+      console.error(err);
+      viewerStatus.textContent =
+        err.type === "peer-unavailable"
+          ? "No PC was found with that code. Check the code and try again."
+          : "Could not connect. Check your internet connection and try again.";
+      pill.textContent = "Error";
+    });
+  };
+
+  $("fullscreenBtn").onclick = async () => {
+    const wrap = $("viewerWrap");
+    try {
+      if (wrap.requestFullscreen) {
+        await wrap.requestFullscreen();
+      } else if ($("remoteVideo").webkitEnterFullscreen) {
+        // iPhone Safari uses native video fullscreen.
+        $("remoteVideo").webkitEnterFullscreen();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Automatically send phones/tablets directly to the code-entry screen.
+  // Desktop computers still see the sender/receiver choice.
+  const isMobileDevice =
+    /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent) ||
+    (navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent));
+
+  if (isMobileDevice) {
+    show(viewerPanel);
+    setTimeout(() => {
+      try { $("codeInput").focus(); } catch {}
+    }, 300);
+  }
+
+  window.addEventListener("beforeunload", () => {
+    try { stopShare(); } catch {}
+  });
+})();
+</script>
+</body>
+</html>
